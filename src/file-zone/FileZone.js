@@ -30,7 +30,6 @@ class FileZone extends Component {
     }
 
     handleTextStyle = (name) => {
-        console.log('Execute', name);
         document.execCommand(name);
     }
 
@@ -46,22 +45,17 @@ class FileZone extends Component {
         const [ position, node ] = this.getCaret();
 
         const modesList = [];
-        console.log(node, this.editableRef.current);
         if (node.nodeName !== 'DIV') {
             modesList.push(modes[node.nodeName]);
 
             let parenNode = node.parentNode;
-            console.log('Parent node', parenNode, modesList);
             while (parenNode.nodeName !== 'DIV') {
-                console.log('Before', parenNode.nodeName);
                 modesList.push(modes[parenNode.nodeName]);
 
                 parenNode = parenNode.parentNode;
-                console.log('Parentnode afte', parenNode);
             }
         }
 
-        console.log(modesList);
 
 
         this.props.setCurrentModes(modesList);
@@ -85,11 +79,12 @@ class FileZone extends Component {
         const [ position, node ] = this.getCaret();
         const key = event.key;
 
-        console.log(position);
         /* if not special key proceed */
         if (key.length < 2) {
             if (key !== ' ') {
                 this.setState((prevState) => {
+                    this.props.setLastWord(prevState.currentWord + key.toString());
+
                     return {
                         currentWord: prevState.currentWord + key.toString(),
                         currentWordLocation: {
@@ -122,10 +117,10 @@ class FileZone extends Component {
                 <div
                     id="file"
                     contentEditable={ true }
-                    onClick={ () => console.log('clicked') }
                     onKeyDown={ this.processTyping }
                     ref={ this.editableRef }
                 >
+                    {this.props.text}
                 </div>
 
             </div>

@@ -8,8 +8,11 @@ class ControlPanel extends Component {
     }
 
 
+    selectSuggestion = (event) => {
+        this.props.setSuggestion(event.target.value);
+    }
+
     render () {
-        console.log(this.props);
         return (
             <div id="control-panel">
                 <div id="format-actions">
@@ -37,8 +40,10 @@ class ControlPanel extends Component {
                 </div>
                 <div className='thesaurus'>
                         Thesaurus
-                        <select>
-                            <option value=''>Test</option>
+                        <select
+                            onChange={this.selectSuggestion}
+                        >
+                            {this.props.suggestions.map( el => <option value={el}>{el}</option>)}
                         </select>
                         <button
                             type='button'

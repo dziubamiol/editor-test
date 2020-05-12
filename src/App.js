@@ -3,7 +3,7 @@ import './App.css';
 import ControlPanel from './control-panel/ControlPanel';
 import FileZone from './file-zone/FileZone';
 import getMockText from './text.service';
-
+import getSuggestion from './API/thesaurus';
 
 const modes = [
     'underline',
@@ -20,12 +20,18 @@ class App extends Component {
             bold: false,
             italic: false,
             underline: false,
+            suggestions: ['Test1', 'Test 2'],
+            text: ''
         }
+
+        this.getText();
     }
 
-    getText () {
-        getMockText().then(function (result) {
-            console.log(result);
+    getText = () => {
+        getMockText().then((result) => {
+            this.setState({
+                text: result,
+            });
         });
     }
 
@@ -38,7 +44,6 @@ class App extends Component {
                 [name]: state,
             });
         } else {
-            console.log('Activate', name);
             this.state.handleTextStyle(name);
 
             this.setState((prevState) => {
@@ -50,7 +55,7 @@ class App extends Component {
     }
 
     activateReplace = () => {
-        this.state.replaceLast('WORD');
+        this.state.replaceLast(this.state.suggestion);
     }
 
     setCallback = (name, callback) => {
@@ -65,7 +70,6 @@ class App extends Component {
         for (const mode of modes) {
             modesState[mode] = currentModes.indexOf(mode) !== -1;
         }
-        console.log(currentModes, modesState);
         this.setState(modesState);
     }
 
@@ -78,6 +82,26 @@ class App extends Component {
     setReplaceHandler = (replaceLast) => {
         this.setState({
             replaceLast: replaceLast
+        });
+    }
+
+    // https://api.datamuse.com/words?ml=word
+    setLastWord = (lastWord) => {
+        this.setState({
+            lastWord: lastWord
+        });
+
+        getSuggestion(lastWord, 5)
+            .then(words => this.setState({
+                suggestions: words
+            }))
+            .catch(err => console.log(err));
+    }
+
+
+    setSuggestion = (suggestion) => {
+        this.setState({
+            suggestion
         });
     }
 
@@ -94,6 +118,8 @@ class App extends Component {
                         italic={ this.state.italic }
                         underline={ this.state.underline }
                         activateReplace={ this.activateReplace }
+                        setSuggestion={ this.setSuggestion }
+                        suggestions={ this.state.suggestions }
                     />
                     <FileZone
                         activeMode={ this.activeMode }
@@ -101,6 +127,8 @@ class App extends Component {
                         setCurrentModes={ this.setCurrentModes }
                         setEditableRef={this.setEditableRef }
                         setReplaceHandler={ this.setReplaceHandler }
+                        setLastWord={ this.setLastWord }
+                        text={this.state.text}
                     />
                 </main>
             </div>
